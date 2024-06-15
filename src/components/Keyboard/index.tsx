@@ -14,7 +14,6 @@ export default function Keyboard() {
     const [correctLetters, setCorrectLetters] = useState<string[]>([]);
     const [numGuesses, setNumGuesses] = useState<number>(0);
 
-
     useEffect(() => {
         const storedWord = sessionStorage.getItem('currWord');
 
