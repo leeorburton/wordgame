@@ -1,0 +1,25 @@
+@import "./mixins";
+
+.row {
+    @include flexbox(row, center, center);
+    margin: 10px 0;
+}
+
+.key {
+    @include heightWidth (50px, 50px, 0);
+    background-color: azure;
+    @include flexbox(row, center, center);
+}
+
+.inactive {
+    background-color: lightblue;
+}
+
+.unselected {
+    border: 1px solid transparent;
+}
+
+.selected {
+    border: 1px solid black;
+}
+

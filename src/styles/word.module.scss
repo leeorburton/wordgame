@@ -1,0 +1,10 @@
+.letter-wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.letter {
+    padding: 5px;
+    margin: 5px;
+    background-color: beige;
+}

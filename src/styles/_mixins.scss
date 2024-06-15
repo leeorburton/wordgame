@@ -1,0 +1,21 @@
+@mixin flexbox($direction, $justify, $align){
+    display: flex;
+    flex-direction: $direction;
+    justify-content: $justify,;
+    align-items: $align;
+}
+
+
+@mixin heightWidth ($height, $width, $radius){
+    height: $height;
+    width: $width;
+    border-radius: $radius;
+}
+
+@mixin google-font($family) {
+    @import url("http://fonts.googleapis.com/css?family=#{$family}");
+  }
+  
+@include google-font("Inter");
+@include google-font("Krona One");
+@include google-font("monospace");
