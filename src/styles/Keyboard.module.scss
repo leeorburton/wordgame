@@ -1,4 +1,5 @@
 @import "./mixins";
+@import "./variables";
 
 .row {
     @include flexbox(row, center, center);
@@ -7,19 +8,38 @@
 
 .key {
     @include heightWidth (50px, 50px, 0);
-    background-color: azure;
+    background-color: $key-color;
     @include flexbox(row, center, center);
+
+    &.incorrect {
+        background-color: rgba(255, 138, 138, 0.7);
+    }
+
+    &.correct {
+        background-color: rgba(95, 176, 95, 0.7);
+    }
 }
 
-.inactive {
-    background-color: lightblue;
-}
-
-.unselected {
-    border: 1px solid transparent;
+.key-wrapper {
+    padding: 0;
+    background-color: 0;
+    border: 1px solid $key-color;
 }
 
 .selected {
     border: 1px solid black;
 }
 
+.word {
+    @include flexbox(row, center, center);
+}
+
+.letter {
+    padding: 5px;
+    margin: 5px;
+    background-color: beige;
+}
+
+.hidden {
+    color: transparent;
+}

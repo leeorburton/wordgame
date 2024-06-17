@@ -3,14 +3,26 @@ import styles from "@/styles/Keyboard.module.scss";
 
 type Props = {
     value: string;
-    active: boolean;
+    status: string;
 };
 
-export default function Key({ value, active }: Props) {
+export default function Key({ value, status }: Props) {
+    let className = styles['key']; // Default class
+
+    switch (status) {
+        case "correct":
+            className += ` ${styles['correct']}`;
+            break;
+        case "incorrect":
+            className += ` ${styles['incorrect']}`;
+            break;
+        default:
+            break;
+    }
 
     return (
         <div
-            className={active ? `${styles.key}` : `${styles.key} ${styles.inactive}`}
+            className={className}
             id={value}
         >
             {value}

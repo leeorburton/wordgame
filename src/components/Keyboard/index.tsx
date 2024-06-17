@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Key from '../Key';
 import styles from "@/styles/Keyboard.module.scss";
-
+import RandomWord from '../Generate';
 export default function Keyboard() {
 
     const topkeys = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'];
@@ -15,23 +15,7 @@ export default function Keyboard() {
     const [numGuesses, setNumGuesses] = useState<number>(0);
 
     useEffect(() => {
-        const storedWord = sessionStorage.getItem('currWord');
-
-        if (storedWord) {
-            try {
-                const wordArray = JSON.parse(storedWord);
-                if (Array.isArray(wordArray)) {
-                    setCurrWord(wordArray);
-                } else {
-                    console.error('Stored word is not an array:', storedWord);
-                }
-            } catch (error) {
-                console.error('Error parsing stored word:', error);
-            }
-        }
-
-        console.log(storedWord);
-
+        setCurrWord(RandomWord);
     }, []);
 
     const handleClick = (value: string) => {
@@ -48,80 +32,96 @@ export default function Keyboard() {
         setNumGuesses(numGuesses => numGuesses + 1);
     }
 
+    const keyClassName = (key: string) => {
+        if (wrongLetters.includes(key)) {
+            return "incorrect";
+        } else if (correctLetters.includes(key)) {
+            return "correct";
+        } else {
+            return "inactive";
+        }
+    }
+
     return (
-        <div className={styles['keyboard']}>
-            <div>
-                <span>Correct: </span>
-                {correctLetters}
-            </div>
-            <div>
-                <span>Wrong: </span>
-                {wrongLetters}
-            </div>
-            <div>
-                <span> Guesses: </span>
-                {numGuesses}
-            </div>
-            <div
-                className={styles['row']}
-                id={styles['topkeys']}
-            >
-                {topkeys.map((key) =>
-                    <button
-                        className={selection === key ? styles['selected'] : styles['unselected']}
-                        key={key}
-                        onClick={() => { setSelection(key) }}
-                        disabled={wrongLetters.includes(key)}
-
-                    >
-                        <Key
-                            value={key}
-                            active={!wrongLetters.includes(key)}
-                        />
-                    </button>
+        <>
+            <div className={styles['word']}>
+                {currWord.map((letter) =>
+                    <div key={Math.floor(Math.random() * 1000000)} className={correctLetters.includes(letter) ? `${styles['letter']}` : `${styles['letter']} ${styles['hidden']}`}> {letter} </div>
                 )}
             </div>
-            <div
-                className={styles['row']}
-                id={styles['middlekeys']}
-            >
-                {middlekeys.map((key) =>
-                    <button
-                        className={selection === key ? styles['selected'] : styles['unselected']}
-                        key={key}
-                        onClick={() => { setSelection(key) }}
-                        disabled={wrongLetters.includes(key)}
-                    >
-                        <Key
-                            value={key}
-                            active={!wrongLetters.includes(key)}
-                        />
-                    </button>
-                )}
-            </div>
-            <div className={styles['row']} id={styles['bottomkeys']}>
-                {bottomkeys.map((key) =>
-                    <button
-                        className={selection === key ? styles['selected'] : styles['unselected']}
-                        key={key}
-                        onClick={() => { setSelection(key) }}
-                        disabled={wrongLetters.includes(key)}
-                    >
-                        <Key
-                            value={key}
-                            active={!wrongLetters.includes(key)}
-                        />
-                    </button>
-                )}
-            </div>
+            <div className={styles['keyboard']}>
+                <div>
+                    <span>Correct: </span>
+                    {correctLetters}
+                </div>
+                <div>
+                    <span>Wrong: </span>
+                    {wrongLetters}
+                </div>
+                <div>
+                    <span> Guesses: </span>
+                    {numGuesses}
+                </div>
+                <div
+                    className={styles['row']}
+                    id={styles['topkeys']}
+                >
+                    {topkeys.map((key) =>
+                        <button
+                            className={selection === key ? `${styles['key-wrapper']} ${styles['selected']}` : `${styles['key-wrapper']} ${styles['unselected']}`}
+                            key={key}
+                            onClick={() => { setSelection(key) }}
+                            disabled={wrongLetters.includes(key) || correctLetters.includes(key)}
+                        >
+                            <Key
+                                value={key}
+                                status={keyClassName(key)}
+                            />
+                        </button>
+                    )}
+                </div>
+                <div
+                    className={styles['row']}
+                    id={styles['middlekeys']}
+                >
+                    {middlekeys.map((key) =>
+                        <button
+                            className={selection === key ? `${styles['key-wrapper']} ${styles['selected']}` : `${styles['key-wrapper']} ${styles['unselected']}`}
+                            key={key}
+                            onClick={() => { setSelection(key) }}
+                            disabled={wrongLetters.includes(key)}
+                        >
+                            <Key
+                                value={key}
+                                status={keyClassName(key)}
+                            />
+                        </button>
+                    )}
+                </div>
+                <div className={styles['row']} id={styles['bottomkeys']}>
+                    {bottomkeys.map((key) =>
+                        <button
+                            className={selection === key ? `${styles['key-wrapper']} ${styles['selected']}` : `${styles['key-wrapper']} ${styles['unselected']}`}
+                            key={key}
+                            onClick={() => { setSelection(key) }}
+                            disabled={wrongLetters.includes(key)}
+                        >
+                            <Key
+                                value={key}
+                                status={keyClassName(key)}
+                            />
+                        </button>
+                    )}
+                </div>
 
-            <button
-                onClick={() => { selection !== null ? handleClick(selection) : null }}
-                disabled={selection === null ? true : false}
-            >
-                Submit
-            </button>
+                <button
+                    onClick={() => { selection !== null ? handleClick(selection) : null }}
+                    disabled={selection === null ? true : false}
+                >
+                    Submit
+                </button>
 
-        </div>
+            </div>
+        </>
     );
 }
