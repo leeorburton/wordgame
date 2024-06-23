@@ -1,19 +1,25 @@
 import { useState, useEffect } from 'react';
 import styles from "@/styles/Keyboard.module.scss";
+import { useRightAnswersState } from '../../hooks/useRightAnswersState';
+import { useWrongAnswersState } from '../../hooks/useWrongAnswersState';
 
 type Props = {
     value: string;
-    status: string;
+    status?: boolean;
 };
 
 export default function Key({ value, status }: Props) {
+
+    const wrongAnswersState = useWrongAnswersState();
+    const rightAnswersState = useRightAnswersState();
+
     let className = styles['key']; // Default class
 
     switch (status) {
-        case "correct":
+        case true:
             className += ` ${styles['correct']}`;
             break;
-        case "incorrect":
+        case false:
             className += ` ${styles['incorrect']}`;
             break;
         default:

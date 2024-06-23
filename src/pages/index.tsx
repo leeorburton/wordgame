@@ -1,13 +1,40 @@
+import { useState, useEffect } from 'react';
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import Keyboard from "../components/Keyboard";
+import Word from "../components/Word";
+import { useResponseState } from "@/hooks/useResponseState";
+import { useGuessesState } from '@/hooks/useGuessesState';
+import { useRightAnswersState } from '@/hooks/useRightAnswersState';
 
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+
+  const responseState = useResponseState();
+
+  const [currWord, setCurrWord] = useState<string[]>([]);
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [result, setResult] = useState<boolean>();
+
+  useEffect(() => {
+    responseState.setWord();
+    setCurrWord(responseState.getWord().slice());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  console.log(currWord);
+
+  const handleDataFromChild = (data: boolean) => {
+    // Handle data received from child component
+    console.log('Data received from child:', data);
+    setIsGameOver(true);
+    setResult(data);
+  };
+
   return (
     <>
       <Head>
@@ -16,10 +43,27 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={`${styles.main} ${inter.className}`}>
-        <Keyboard />
-
-      </main>
+      {!isGameOver &&
+        <main className={`${styles.main} ${inter.className}`}>
+          <Word
+            currWord={currWord}
+          />
+          <Keyboard
+            currWord={currWord}
+            onData={handleDataFromChild}
+          />
+        </main>
+      }
+      {isGameOver &&
+        <main className={`${styles.main} ${inter.className}`}>
+          {result &&
+            <div>Winner</div>
+          }
+          {!result &&
+            <div>Loser</div>
+          }
+        </main>
+      }
     </>
   );
 }

@@ -1,118 +1,94 @@
 import { useState, useEffect } from 'react';
 import Key from '../Key';
+import keyValues from '@/data/keyValues';
 import styles from "@/styles/Keyboard.module.scss";
-import RandomWord from '../Generate';
-export default function Keyboard() {
+import { useRightAnswersState } from '../../hooks/useRightAnswersState';
+import { useWrongAnswersState } from '../../hooks/useWrongAnswersState';
 
-    const topkeys = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'];
-    const middlekeys = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'];
-    const bottomkeys = ['z', 'x', 'c', 'v', 'b', 'n', 'm'];
+type Props = {
+    currWord: string[];
+    onData: (data: boolean) => void;
+};
 
-    const [currWord, setCurrWord] = useState<string[]>([]);
+export default function Keyboard({ currWord, onData }: Props) {
+    const wrongAnswersState = useWrongAnswersState();
+    const rightAnswersState = useRightAnswersState();
+
+    const availableGuesses = 8;
+
     const [selection, setSelection] = useState<string | null>(null);
-    const [wrongLetters, setWrongLetters] = useState<string[]>([]);
-    const [correctLetters, setCorrectLetters] = useState<string[]>([]);
     const [numGuesses, setNumGuesses] = useState<number>(0);
 
     useEffect(() => {
-        setCurrWord(RandomWord);
-    }, []);
+        checkResult();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [numGuesses]);
 
     const handleClick = (value: string) => {
         if (currWord.includes(value)) {
-            setCorrectLetters(correctLetters => [...correctLetters, value]);
-            setSelection(null);
-            console.log("true");
+            rightAnswersState.addRightAnswer(value);
         } else {
-            setWrongLetters(wrongLetters => [...wrongLetters, value]);
-            setSelection(null);
-            console.log("false");
+            wrongAnswersState.addWrongAnswer(value);
         }
 
-        setNumGuesses(numGuesses => numGuesses + 1);
+        setNumGuesses(numGuesses + 1);
+        setSelection(null);
     }
 
-    const keyClassName = (key: string) => {
-        if (wrongLetters.includes(key)) {
-            return "incorrect";
-        } else if (correctLetters.includes(key)) {
-            return "correct";
+    const checkResult = () => {
+        let filtered: string[] | null = currWord;
+        let correctAnswers = rightAnswersState.getRightAnswers().slice();
+
+        filtered = currWord.filter((item) => !correctAnswers.includes(item));
+
+        return correctAnswers.length > 0 && filtered.length === 0 ? onData(true) : checkNumGuesses();
+    }
+
+    const checkNumGuesses = () => {
+        return numGuesses < availableGuesses ? "playing" : onData(false);
+    }
+
+    const isActive = (key: string) => {
+        if (rightAnswersState.getRightAnswers().includes(key)) {
+            return true;
+        } else if (wrongAnswersState.getWrongAnswers().includes(key)) {
+            return false;
         } else {
-            return "inactive";
+            null;
         }
+    }
+
+    const renderRow = () => {
+
+        return (
+            keyValues.map((row: row) => (
+                <div key={row.type} className={styles['row']} id={styles[row.type]}>
+                    {row.keys.map((key: string) => (
+                        <button
+                            className={selection === key ? `${styles['key-wrapper']} ${styles['selected']}` : `${styles['key-wrapper']} ${styles['unselected']}`}
+                            key={key}
+                            onClick={() => { setSelection(key) }}
+                            disabled={isActive(key) !== undefined}
+                        >
+                            <Key
+                                value={key}
+                                status={isActive(key)}
+                            />
+                        </button>
+                    ))}
+                </div>
+            ))
+        );
     }
 
     return (
         <>
-            <div className={styles['word']}>
-                {currWord.map((letter) =>
-                    <div key={Math.floor(Math.random() * 1000000)} className={correctLetters.includes(letter) ? `${styles['letter']}` : `${styles['letter']} ${styles['hidden']}`}> {letter} </div>
-                )}
-            </div>
+            <div>Num Guesses: {numGuesses} </div>
+            <div>Wrong answers: {wrongAnswersState.getWrongAnswers()}</div>
+            <div>Right answers: {rightAnswersState.getRightAnswers()}</div>
             <div className={styles['keyboard']}>
-                <div>
-                    <span>Correct: </span>
-                    {correctLetters}
-                </div>
-                <div>
-                    <span>Wrong: </span>
-                    {wrongLetters}
-                </div>
-                <div>
-                    <span> Guesses: </span>
-                    {numGuesses}
-                </div>
-                <div
-                    className={styles['row']}
-                    id={styles['topkeys']}
-                >
-                    {topkeys.map((key) =>
-                        <button
-                            className={selection === key ? `${styles['key-wrapper']} ${styles['selected']}` : `${styles['key-wrapper']} ${styles['unselected']}`}
-                            key={key}
-                            onClick={() => { setSelection(key) }}
-                            disabled={wrongLetters.includes(key) || correctLetters.includes(key)}
-                        >
-                            <Key
-                                value={key}
-                                status={keyClassName(key)}
-                            />
-                        </button>
-                    )}
-                </div>
-                <div
-                    className={styles['row']}
-                    id={styles['middlekeys']}
-                >
-                    {middlekeys.map((key) =>
-                        <button
-                            className={selection === key ? `${styles['key-wrapper']} ${styles['selected']}` : `${styles['key-wrapper']} ${styles['unselected']}`}
-                            key={key}
-                            onClick={() => { setSelection(key) }}
-                            disabled={wrongLetters.includes(key)}
-                        >
-                            <Key
-                                value={key}
-                                status={keyClassName(key)}
-                            />
-                        </button>
-                    )}
-                </div>
-                <div className={styles['row']} id={styles['bottomkeys']}>
-                    {bottomkeys.map((key) =>
-                        <button
-                            className={selection === key ? `${styles['key-wrapper']} ${styles['selected']}` : `${styles['key-wrapper']} ${styles['unselected']}`}
-                            key={key}
-                            onClick={() => { setSelection(key) }}
-                            disabled={wrongLetters.includes(key)}
-                        >
-                            <Key
-                                value={key}
-                                status={keyClassName(key)}
-                            />
-                        </button>
-                    )}
-                </div>
+
+                {renderRow()}
 
                 <button
                     onClick={() => { selection !== null ? handleClick(selection) : null }}
