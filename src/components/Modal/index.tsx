@@ -16,6 +16,7 @@ const montserrat = Montserrat({ weight: ["300", "600"], subsets: ["latin"] });
 export default function Word({ result, currWord, handleClose }: Props) {
 
     const handleCloseClick = () => {
+        // pass to parent & close modal
         return handleClose(true);
     };
 

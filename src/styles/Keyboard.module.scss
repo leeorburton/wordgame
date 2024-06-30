@@ -11,7 +11,8 @@
 }
 
 .key {
-    @include heightWidth (60px, 60px, 0);
+    height: 50px;
+    width: 30px;
     background-color: $key-color;
     @include flexbox(row, center, center);
     font-size: 16px;
@@ -26,15 +27,32 @@
     &.correct {
         background-color: $success-opacity;
     }
+
+    @media screen and (min-width: 475px){
+        height: 50px;
+        width: 40px;    
+    }
+
+    @media screen and (min-width: 800px){
+        height: 60px;
+        width: 60px;
+    }
 }
 
 .key-wrapper {
     padding: 0;
     background-color: transparent;
     border: 1px solid $key-color;
-    margin: 8px;
     border-radius: 10px;
+    margin: 2px;
 
+    @media screen and (min-width: 475px){
+        margin: 4px;
+    }
+
+    @media screen and (min-width: 800px){
+        margin: 8px;
+    }
 }
 
 .selected {

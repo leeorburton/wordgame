@@ -4,10 +4,3 @@
     justify-content: $justify,;
     align-items: $align;
 }
-
-
-@mixin heightWidth ($height, $width, $radius){
-    height: $height;
-    width: $width;
-    border-radius: $radius;
-}

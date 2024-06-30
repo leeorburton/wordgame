@@ -12,7 +12,10 @@ export default function Word({ currWord, isGameOver }: Props) {
 
     const rightAnswersState = useRightAnswersState();
 
+    console.log('currWord:', currWord);
+
     const getClassName = (letter: string) => {
+        // show letters that are guessed correctly or when the game is over
         let className = `${styles['letter']}`; // Default class
 
         switch (rightAnswersState.getRightAnswers().includes(letter)) {

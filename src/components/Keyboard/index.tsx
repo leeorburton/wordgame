@@ -28,35 +28,38 @@ export default function Keyboard({ currWord, handleGameStatus, handleFeedbackRes
     const [isGameOver, setIsGameOver] = useState<boolean>(false);
 
     useEffect(() => {
+        // check if the game is over after each guess
         checkResult();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numGuesses]);
 
     useEffect(() => {
+        // Allow user to use keyboard to select letters
         const keyDownHandler = (e: KeyboardEvent) => {
-            if (/^[a-z]$/i.test(e.key) && isActive(e.key) === undefined) { // Check if the pressed key is a letter
+            if (/^[a-z]$/i.test(e.key) && isActive(e.key) === undefined) { // check if the pressed key is a letter
                 setSelection(e.key);
-            }
+            };
 
-            if (selection !== null && !isGameOver && e.code === "Enter") {
+            if (selection !== null && !isGameOver && e.code === "Enter") { // submit on enter
                 handleClick(selection);
             };
 
-            if (e.code === "Escape") {
+            if (e.code === "Escape") { // clear selection on escape
                 setSelection(null);
             };
         };
 
         document.addEventListener("keydown", keyDownHandler);
 
-        // clean up
-        return () => {
+        return () => { // clean up
             document.removeEventListener("keydown", keyDownHandler);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selection]);
 
     const handleClick = (value: string) => {
+        // handle user input and check answer
+
         if (currWord.includes(value)) {
             rightAnswersState.addRightAnswer(value);
             handleFeedbackResponse(true);
@@ -71,6 +74,7 @@ export default function Keyboard({ currWord, handleGameStatus, handleFeedbackRes
     }
 
     const checkResult = () => {
+        // check if the game is over and if the user has won or lost
         let filtered: string[] | null = currWord;
         let correctAnswers = rightAnswersState.getRightAnswers().slice();
 
@@ -78,22 +82,23 @@ export default function Keyboard({ currWord, handleGameStatus, handleFeedbackRes
 
         if (correctAnswers.length > 0 && filtered.length === 0) {
             setIsGameOver(true);
-            return handleGameStatus(true);
+            return handleGameStatus(true); // win and pass data to parent
         } else {
-            return checkNumGuesses();
+            return checkNumGuesses(); // did not win, check if lost
         }
     }
 
     const checkNumGuesses = () => {
         if (remainingGuesses > 0) {
-            return "playing";
+            return "playing"; // still playing
         } else {
             setIsGameOver(true);
-            return handleGameStatus(false);
+            return handleGameStatus(false); // lose and pass data to parent
         }
     }
 
     const isActive = (key: string) => {
+        // indicate if key has been guessed and if it was correct or incorrect
         if (rightAnswersState.getRightAnswers().includes(key)) {
             return true;
         } else if (wrongAnswersState.getWrongAnswers().includes(key)) {
