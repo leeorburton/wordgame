@@ -1,13 +1,25 @@
-.letter-wrapper {
-    display: flex;
-    flex-direction: row;
+@import "style.scss";
+
+.word {
+    @include flexbox(row, center, center);
+    color: $text-color;
+
+    & div {
+        @include flexbox(column, center, center);
+    }
 }
 
 .letter {
     padding: 5px;
     margin: 5px;
-    background-color: beige;
+    background-color: $key-color;
+    height: 50px;
+    width: 50px;
+    border-radius: 10px;
+
+    font-size: 20px;
 }
+
 
 .hidden {
     color: transparent;

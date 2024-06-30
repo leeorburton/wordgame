@@ -1,37 +1,72 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SetStateAction } from 'react';
 import Key from '../Key';
-import keyValues from '@/data/keyValues';
+import { keyValues } from '@/data/keyValues';
 import styles from "@/styles/Keyboard.module.scss";
 import { useRightAnswersState } from '../../hooks/useRightAnswersState';
 import { useWrongAnswersState } from '../../hooks/useWrongAnswersState';
+import { Titan_One, Montserrat } from "next/font/google";
 
 type Props = {
     currWord: string[];
-    onData: (data: boolean) => void;
+    handleGameStatus: (data: boolean) => void;
+    handleFeedbackResponse: (data: boolean | null) => void;
 };
 
-export default function Keyboard({ currWord, onData }: Props) {
+const titan = Titan_One({ weight: "400", subsets: ["latin"] });
+const montserrat = Montserrat({ weight: "400", subsets: ["latin"] });
+
+export default function Keyboard({ currWord, handleGameStatus, handleFeedbackResponse }: Props) {
+
     const wrongAnswersState = useWrongAnswersState();
     const rightAnswersState = useRightAnswersState();
 
-    const availableGuesses = 8;
+    const availableGuesses = 10;
 
     const [selection, setSelection] = useState<string | null>(null);
     const [numGuesses, setNumGuesses] = useState<number>(0);
+    const [remainingGuesses, setRemainingGuesses] = useState<number>(availableGuesses);
+    const [isGameOver, setIsGameOver] = useState<boolean>(false);
 
     useEffect(() => {
         checkResult();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numGuesses]);
 
+    useEffect(() => {
+        const keyDownHandler = (e: KeyboardEvent) => {
+            if (/^[a-z]$/i.test(e.key) && isActive(e.key) === undefined) { // Check if the pressed key is a letter
+                setSelection(e.key);
+            }
+
+            if (selection !== null && !isGameOver && e.code === "Enter") {
+                handleClick(selection);
+            };
+
+            if (e.code === "Escape") {
+                setSelection(null);
+            };
+        };
+
+        document.addEventListener("keydown", keyDownHandler);
+
+        // clean up
+        return () => {
+            document.removeEventListener("keydown", keyDownHandler);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selection]);
+
     const handleClick = (value: string) => {
         if (currWord.includes(value)) {
             rightAnswersState.addRightAnswer(value);
+            handleFeedbackResponse(true);
         } else {
+            setRemainingGuesses(remainingGuesses - 1);
             wrongAnswersState.addWrongAnswer(value);
+            handleFeedbackResponse(false);
         }
 
-        setNumGuesses(numGuesses + 1);
+        setNumGuesses(prev => prev + 1);
         setSelection(null);
     }
 
@@ -41,11 +76,21 @@ export default function Keyboard({ currWord, onData }: Props) {
 
         filtered = currWord.filter((item) => !correctAnswers.includes(item));
 
-        return correctAnswers.length > 0 && filtered.length === 0 ? onData(true) : checkNumGuesses();
+        if (correctAnswers.length > 0 && filtered.length === 0) {
+            setIsGameOver(true);
+            return handleGameStatus(true);
+        } else {
+            return checkNumGuesses();
+        }
     }
 
     const checkNumGuesses = () => {
-        return numGuesses < availableGuesses ? "playing" : onData(false);
+        if (remainingGuesses > 0) {
+            return "playing";
+        } else {
+            setIsGameOver(true);
+            return handleGameStatus(false);
+        }
     }
 
     const isActive = (key: string) => {
@@ -82,22 +127,37 @@ export default function Keyboard({ currWord, onData }: Props) {
     }
 
     return (
-        <>
-            <div>Num Guesses: {numGuesses} </div>
-            <div>Wrong answers: {wrongAnswersState.getWrongAnswers()}</div>
-            <div>Right answers: {rightAnswersState.getRightAnswers()}</div>
-            <div className={styles['keyboard']}>
+        <div className={`${styles['game-wrapper']}`}>
+            <div>
+                Remaining guesses: <strong>{remainingGuesses}</strong>
+            </div>
+            <div className={`${styles['keyboard']}`}>
 
                 {renderRow()}
 
-                <button
-                    onClick={() => { selection !== null ? handleClick(selection) : null }}
-                    disabled={selection === null ? true : false}
-                >
-                    Submit
-                </button>
+                <div className='submit-wrapper'>
+                    {!isGameOver &&
+                        <button
+                            className={`${titan.className} ${'submit'} ${styles.submit}`}
+                            onClick={() => { selection !== null ? handleClick(selection) : null }}
+                            disabled={selection === null ? true : false}
+                        >
+                            submit
+                        </button>
+                    }
+
+                    {isGameOver &&
+                        <button
+                            className={`${titan.className} ${'submit'} ${styles.submit}`}
+                            onClick={() => { window.location.reload() }}
+                        >
+                            play again
+                        </button>
+                    }
+
+                </div>
 
             </div>
-        </>
+        </div>
     );
 }

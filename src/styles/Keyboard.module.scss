@@ -1,5 +1,9 @@
-@import "./mixins";
-@import "./variables";
+@import "style.scss";
+
+.game-wrapper {
+    width: fit-content;
+    margin: 0 auto;
+}
 
 .row {
     @include flexbox(row, center, center);
@@ -7,39 +11,36 @@
 }
 
 .key {
-    @include heightWidth (50px, 50px, 0);
+    @include heightWidth (60px, 60px, 0);
     background-color: $key-color;
     @include flexbox(row, center, center);
+    font-size: 16px;
+    text-transform: uppercase;
+    border-radius: 10px;
+    color: $text-color;
 
     &.incorrect {
-        background-color: rgba(255, 138, 138, 0.7);
+        background-color: $warning-opacity;
     }
 
     &.correct {
-        background-color: rgba(95, 176, 95, 0.7);
+        background-color: $success-opacity;
     }
 }
 
 .key-wrapper {
     padding: 0;
-    background-color: 0;
+    background-color: transparent;
     border: 1px solid $key-color;
+    margin: 8px;
+    border-radius: 10px;
+
 }
 
 .selected {
-    border: 1px solid black;
+    border: 1px solid $text-color;
 }
 
-.word {
-    @include flexbox(row, center, center);
-}
-
-.letter {
-    padding: 5px;
-    margin: 5px;
-    background-color: beige;
-}
-
-.hidden {
-    color: transparent;
+button.submit {
+    margin-top: 30px;
 }

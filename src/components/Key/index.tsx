@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import styles from "@/styles/Keyboard.module.scss";
-import { useRightAnswersState } from '../../hooks/useRightAnswersState';
-import { useWrongAnswersState } from '../../hooks/useWrongAnswersState';
+import { Montserrat } from 'next/font/google';
+
+const montserrat = Montserrat({ weight: "400", subsets: ["latin"] });
 
 type Props = {
     value: string;
@@ -10,10 +10,7 @@ type Props = {
 
 export default function Key({ value, status }: Props) {
 
-    const wrongAnswersState = useWrongAnswersState();
-    const rightAnswersState = useRightAnswersState();
-
-    let className = styles['key']; // Default class
+    let className = `${styles['key']} ${montserrat.className}`; // Default class
 
     switch (status) {
         case true:
